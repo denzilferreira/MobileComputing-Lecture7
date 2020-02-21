@@ -16,7 +16,6 @@ class SpeechSynthetizer : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech( applicationContext, this)
 
-
         btn_speak.setOnClickListener {
             tts.setSpeechRate(1f)
             tts.setPitch(1f)
