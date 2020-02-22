@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "464232968518",
+    "firebase_url": "https://mobilecomputing-lecture7.firebaseio.com",
+    "project_id": "mobilecomputing-lecture7",
+    "storage_bucket": "mobilecomputing-lecture7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464232968518:android:c2a25b03eac93cea197547",
+        "android_client_info": {
+          "package_name": "com.example.mobilecomputinglecture7"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464232968518-iuo4dms68f66njcdjosbv6ngipekasgt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mobilecomputinglecture7",
+            "certificate_hash": "f7c82533365cad1682b9d3728dd08ba5b441e774"
+          }
+        },
+        {
+          "client_id": "464232968518-4n17npo3gkd9kfcmmfk1v3lk7rgqnkh8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-jbnxYJI_i9FSvj1bF2pMHCvoLIqNQ4Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464232968518-4n17npo3gkd9kfcmmfk1v3lk7rgqnkh8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
