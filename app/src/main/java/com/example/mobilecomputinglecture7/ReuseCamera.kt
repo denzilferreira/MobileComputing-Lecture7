@@ -3,6 +3,9 @@ package com.example.mobilecomputinglecture7
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Camera
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -30,7 +33,7 @@ class ReuseCamera : AppCompatActivity() {
             val pic = data?.extras?.get("data") as Bitmap
             img_photo.setImageBitmap(pic)
 
-            //front-facing camera is rotated 90 degrees to the right
+            //selfie camera is rotated 90 degrees to the right, so we are rotating it back
             img_photo.rotation = -90f
         }
     }
