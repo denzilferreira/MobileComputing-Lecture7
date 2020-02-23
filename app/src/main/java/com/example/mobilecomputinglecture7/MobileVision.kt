@@ -11,6 +11,7 @@ import androidx.camera.core.*
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import kotlinx.android.synthetic.main.activity_mobile_vision.*
 import java.util.concurrent.Executors
@@ -64,6 +65,7 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
             imageAnalysis.setAnalyzer(executor, object : ImageAnalysis.Analyzer {
 
                 var detected = false
+                var smiling = false
 
                 val options = FirebaseVisionFaceDetectorOptions.Builder().apply {
                     setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
@@ -95,7 +97,16 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                                         tts.speak("Where did you go?!", TextToSpeech.QUEUE_ADD, Bundle.EMPTY, "robot")
                                     }
                                 }
+
+                                val currentSmile = faces.get(0).smilingProbability > 0.8
+                                if (currentSmile != smiling) {
+                                    if (currentSmile) {
+                                        tts.speak("What a beautiful smile!", TextToSpeech.QUEUE_ADD, Bundle.EMPTY, "robot")
+                                    }
+                                }
+
                                 detected = currentDetect
+                                smiling = currentSmile
                             }
                         }
                     }
