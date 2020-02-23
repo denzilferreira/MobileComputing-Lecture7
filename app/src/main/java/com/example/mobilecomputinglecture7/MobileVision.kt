@@ -26,7 +26,6 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
         setContentView(R.layout.activity_mobile_vision)
 
         viewFinder = findViewById(R.id.camera_feed)
-        viewFinder.post { startCamera() }
 
         tts = TextToSpeech( applicationContext, this)
     }
@@ -34,32 +33,44 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
     lateinit var viewFinder : TextureView
     val executor = Executors.newSingleThreadExecutor()
 
-    fun startCamera() {
-
-        val previewConfig = PreviewConfig.Builder().build()
-        val preview = Preview(previewConfig)
-        preview.setOnPreviewOutputUpdateListener {
-            val parent = viewFinder.parent as ViewGroup
-            parent.removeView(viewFinder)
-            parent.addView(viewFinder, 0)
-            viewFinder.surfaceTexture = it.surfaceTexture
-        }
-
-        val imageAnalysisConfig = ImageAnalysisConfig.Builder().apply {
-            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
-            setImageQueueDepth(1)
-        }.build()
-
-        val imageAnalysis = ImageAnalysis(imageAnalysisConfig)
+    override fun onResume() {
+        super.onResume()
 
         btn_faces.setOnClickListener {
 
-            val options = FirebaseVisionFaceDetectorOptions.Builder().apply {
-                setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
-                setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+            Toast.makeText(applicationContext, "Face detection engaged", Toast.LENGTH_SHORT).show()
+
+            CameraX.unbindAll()
+
+            val frontPreviewConfig = PreviewConfig.Builder().apply {
+                setLensFacing(CameraX.LensFacing.FRONT)
             }.build()
 
+            val frontPreview = Preview(frontPreviewConfig)
+            frontPreview.setOnPreviewOutputUpdateListener {
+                val parent = viewFinder.parent as ViewGroup
+                parent.removeView(viewFinder)
+                parent.addView(viewFinder,0)
+                viewFinder.surfaceTexture = it.surfaceTexture
+            }
+
+            val imageAnalysisConfig = ImageAnalysisConfig.Builder().apply {
+                setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+                setImageQueueDepth(1)
+                setLensFacing(CameraX.LensFacing.FRONT)
+            }.build()
+            val imageAnalysis = ImageAnalysis(imageAnalysisConfig)
+
             imageAnalysis.setAnalyzer(executor, object : ImageAnalysis.Analyzer {
+
+                var detected = false
+
+                val options = FirebaseVisionFaceDetectorOptions.Builder().apply {
+                    setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
+                    setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+                    setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+                }.build()
+
                 fun degreesToFirebase(degrees : Int) : Int = when(degrees) {
                     0 -> FirebaseVisionImageMetadata.ROTATION_0
                     90 -> FirebaseVisionImageMetadata.ROTATION_90
@@ -73,27 +84,25 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val imageRotation = degreesToFirebase(rotationDegrees)
                     if (mediaImage != null) {
                         val image = FirebaseVisionImage.fromMediaImage(mediaImage, imageRotation)
-
                         val detector = FirebaseVision.getInstance().getVisionFaceDetector(options)
                         detector.detectInImage(image).apply {
                             addOnSuccessListener { faces ->
-                                println("Detected: ${faces.size}")
+                                val currentDetect = faces.size > 0
+                                if (currentDetect != detected) {
+                                    if (currentDetect) {
+                                        tts.speak("I can see you!", TextToSpeech.QUEUE_ADD, Bundle.EMPTY, "robot")
+                                    } else {
+                                        tts.speak("Where did you go?!", TextToSpeech.QUEUE_ADD, Bundle.EMPTY, "robot")
+                                    }
+                                }
+                                detected = currentDetect
                             }
                         }
                     }
                 }
             })
-        }
 
-        CameraX.bindToLifecycle(this, preview, imageAnalysis)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        btn_faces.setOnClickListener {
-            Toast.makeText(applicationContext, "Face detection engaged", Toast.LENGTH_SHORT).show()
-
+            CameraX.bindToLifecycle(this, frontPreview, imageAnalysis)
         }
     }
 
@@ -108,6 +117,7 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        CameraX.unbindAll()
         tts.shutdown()
     }
 }
