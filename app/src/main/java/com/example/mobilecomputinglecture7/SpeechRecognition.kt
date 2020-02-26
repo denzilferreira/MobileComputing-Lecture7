@@ -17,6 +17,7 @@ class SpeechRecognition : AppCompatActivity() {
         setContentView(R.layout.activity_speech_recognition)
 
         val listen = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+
         listen.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM

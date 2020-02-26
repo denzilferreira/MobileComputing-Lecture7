@@ -110,9 +110,9 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     }
                                 }
 
-                                val currentSmile = (faces.get(0).smilingProbability > 0.8)
-                                if (currentSmile != smiling) {
-                                    if (currentSmile) {
+                                if (currentDetect) { //only check if someone is smiling if face is detected
+                                    val isSmiling = faces.get(0).smilingProbability > 0.8
+                                    if (isSmiling != smiling) {
                                         tts.speak(
                                             "What a beautiful smile!",
                                             TextToSpeech.QUEUE_ADD,
@@ -120,10 +120,10 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                                             "robot"
                                         )
                                     }
+                                    smiling = isSmiling
                                 }
 
                                 detected = currentDetect
-                                smiling = currentSmile
                             }
                         }
                     }
