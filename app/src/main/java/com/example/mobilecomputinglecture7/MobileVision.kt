@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.view.TextureView
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -66,8 +67,8 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             imageAnalysis.setAnalyzer(executor, object : ImageAnalysis.Analyzer {
 
-                var detected = false
-                var smiling = false
+                var previousFaces = false
+                var previousSmiling = false
 
                 val options = FirebaseVisionFaceDetectorOptions.Builder().apply {
                     setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
@@ -91,9 +92,9 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                         val detector = FirebaseVision.getInstance().getVisionFaceDetector(options)
                         detector.detectInImage(image).apply {
                             addOnSuccessListener { faces ->
-                                val currentDetect = (faces.size > 0)
-                                if (currentDetect != detected) {
-                                    if (currentDetect) {
+                                val currentFaces = (faces.size > 0)
+                                if (currentFaces != previousFaces) {
+                                    if (currentFaces) {
                                         tts.speak(
                                             "I can see you!",
                                             TextToSpeech.QUEUE_ADD,
@@ -110,9 +111,9 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     }
                                 }
 
-                                if (currentDetect) { //only check if someone is smiling if face is detected
-                                    val isSmiling = faces.get(0).smilingProbability > 0.8
-                                    if (isSmiling != smiling) {
+                                if (currentFaces) {
+                                    val currentSmiling = faces.get(0).smilingProbability > 0.90
+                                    if (currentSmiling != previousSmiling) {
                                         tts.speak(
                                             "What a beautiful smile!",
                                             TextToSpeech.QUEUE_ADD,
@@ -120,10 +121,10 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                                             "robot"
                                         )
                                     }
-                                    smiling = isSmiling
+                                    previousSmiling = currentSmiling
                                 }
 
-                                detected = currentDetect
+                                previousFaces = currentFaces
                             }
                         }
                     }
@@ -242,9 +243,14 @@ class MobileVision : AppCompatActivity(), TextToSpeech.OnInitListener {
                         val textDetector = FirebaseVision.getInstance().onDeviceTextRecognizer
                         textDetector.processImage(image).apply {
                             addOnSuccessListener { texts ->
-                                ocr_text.text = texts.text
-                                ocr_text.setBackgroundColor(Color.WHITE)
-                                ocr_text.alpha = .7f
+                                if (texts.text.length > 0) {
+                                    ocr_text.visibility = View.VISIBLE
+                                    ocr_text.text = texts.text
+                                    ocr_text.setBackgroundColor(Color.WHITE)
+                                    ocr_text.alpha = .8f
+                                } else {
+                                    ocr_text.visibility = View.INVISIBLE
+                                }
                             }
                         }
                     }
